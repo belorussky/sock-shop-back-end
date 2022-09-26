@@ -6,7 +6,7 @@ import getProductsById from '@functions/getProductsById';
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '3',
-  plugins: ['serverless-auto-swagger', 'serverless-esbuild'],
+  plugins: ['serverless-auto-swagger', 'serverless-webpack', 'serverless-esbuild'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -24,6 +24,10 @@ const serverlessConfiguration: AWS = {
   functions: { getProductsList, getProductsById },
   package: { individually: true },
   custom: {
+    webpack: {
+      webpackConfig: './webpack.config.js',
+      includeModules: true,
+    },
     esbuild: {
       bundle: true,
       minify: false,
