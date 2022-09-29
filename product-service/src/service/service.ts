@@ -1,6 +1,5 @@
 // import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import Product from "../models/product";
-import productList from '../functions/getProductsList/mock.json';
 
 export default class ProductsServerice {
 
@@ -8,22 +7,15 @@ export default class ProductsServerice {
 
     // constructor(private docClient: DocumentClient) { }
 
-    async getProducts(): Promise<Product[]> {
-        return productList as Product[];
+    async getProducts(productList: Product[]): Promise<Product[]> {
+        return productList;
      }
 
-    async getProductById(id: string): Promise<Product> {
-        const product = Object.values(productList).filter(e => {
-            if (Object.values(e).find(v => v === id)) {
-                return Object.values(e);
-            }
-        });
+    async getProductById(id: string, productList: Product[]): Promise<Product> {
 
-        if (Object.keys(product).length === 0) {
-            throw new Error("Product not found");
-        }
+        const product = productList.find((p) => p.id === id);
 
-        return product as unknown as Product;
+        return product;
 
     }
 }
