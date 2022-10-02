@@ -32,7 +32,7 @@ const productsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
     const product = await getProductById(id);
 
     if (product.length === 0) {
-      return formatNotFoundResponse(`Product with ID = ${id} not found`);
+      return formatNotFoundResponse({message: `Product with ID = ${id} not found`});
     } else {
       const stock = await getProductStockById(id);
       product[0]['count'] = stock[0].count;

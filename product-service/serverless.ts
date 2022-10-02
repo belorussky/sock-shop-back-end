@@ -2,6 +2,7 @@ import type { AWS } from '@serverless/typescript';
 
 import getProductsList from '@functions/getProductsList';
 import getProductsById from '@functions/getProductsById';
+import createProduct from '@functions/createProduct';
 // import dynamoResources from  './dynamoResources';
 
 const serverlessConfiguration: AWS = {
@@ -32,7 +33,7 @@ const serverlessConfiguration: AWS = {
           'dynamodb:UpdateItem',
           'dynamodb:DeleteItem'
         ],
-        Resource: "arn:aws:dynamodb:${self:provider.region}:597016584451:table/${self:custom.enviroment.productsTable}"
+        Resource: "arn:aws:dynamodb:${self:provider.region}:${self:custom.enviroment.AWS_ACCOUNT_ID}:table/${self:custom.enviroment.PRODUCTS_TABLE}"
       },
       {
         Effect: 'Allow',
@@ -45,12 +46,12 @@ const serverlessConfiguration: AWS = {
           'dynamodb:UpdateItem',
           'dynamodb:DeleteItem'
         ],
-        Resource: "arn:aws:dynamodb:${self:provider.region}:597016584451:table/${self:custom.enviroment.stocksTable}"
+        Resource: "arn:aws:dynamodb:${self:provider.region}:${self:custom.enviroment.AWS_ACCOUNT_ID}:table/${self:custom.enviroment.STOCKS_TABLE}"
       }
   ]
   },
   // import the function via paths
-  functions: { getProductsList, getProductsById },
+  functions: { getProductsList, getProductsById, createProduct },
   // resources: {
   //   Resources: {
   //     ...dynamoResources,
@@ -59,8 +60,9 @@ const serverlessConfiguration: AWS = {
   package: { individually: true },
   custom: {
     enviroment: {
-      productsTable: 'Products',
-      stocksTable: 'Stocks',
+      PRODUCTS_TABLE: 'Products',
+      STOCKS_TABLE: 'Stocks',
+      AWS_ACCOUNT_ID: '597016584451'
     },
     esbuild: {
       bundle: true,
