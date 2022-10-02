@@ -17,7 +17,6 @@ export default {
         responses: {
           200: {
             description: 'Product successfully added to the DB',
-            bodyType: 'Product'
           }
         },
       },

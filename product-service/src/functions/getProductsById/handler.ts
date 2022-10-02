@@ -1,5 +1,5 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
-import { formatJSONResponse, formatNotFoundResponse } from '@libs/api-gateway';
+import { formatJSONResponse, formatNotFoundResponse, formatError500Response } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient();
@@ -7,28 +7,32 @@ const dynamo = new AWS.DynamoDB.DocumentClient();
 import schema from './schema';
 
 const productsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
-    const id = event.pathParameters.productId;
+  //console.log for each incoming requests arguments
+  console.log(event);
 
-    const getProductById = async (productId: string) => {
-      const product =  await dynamo.query({
-          TableName: 'Products',
-          KeyConditionExpression: 'id = :id',
-          ExpressionAttributeValues: { ':id': productId },
-      }).promise();
+  const id = event.pathParameters.productId;
 
-      return product?.Items;
-    };
+  const getProductById = async (productId: string) => {
+    const product =  await dynamo.query({
+        TableName: 'Products',
+        KeyConditionExpression: 'id = :id',
+        ExpressionAttributeValues: { ':id': productId },
+    }).promise();
 
-    const getProductStockById = async (productId: string) => {
-      const stock =  await dynamo.query({
-          TableName: 'Stocks',
-          KeyConditionExpression: 'product_id = :id',
-          ExpressionAttributeValues: { ':id': productId },
-      }).promise();
+    return product?.Items;
+  };
 
-      return stock.Items;
-    };
+  const getProductStockById = async (productId: string) => {
+    const stock =  await dynamo.query({
+        TableName: 'Stocks',
+        KeyConditionExpression: 'product_id = :id',
+        ExpressionAttributeValues: { ':id': productId },
+    }).promise();
 
+    return stock.Items;
+  };
+
+  try {
     const product = await getProductById(id);
 
     if (product.length === 0) {
@@ -41,6 +45,9 @@ const productsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
     return formatJSONResponse({
       ...product
     });
+  } catch(error) {
+      return formatError500Response({ message: error.errorMessage });
+  }
 };
 
 export const main = middyfy(productsById);

@@ -40,10 +40,7 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": "Product successfully added to the DB",
-            "schema": {
-              "$ref": "#/definitions/Product"
-            }
+            "description": "Product successfully added to the DB"
           }
         }
       }

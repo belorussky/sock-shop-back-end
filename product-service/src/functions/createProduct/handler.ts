@@ -1,5 +1,5 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
-import { formatJSONResponse } from '@libs/api-gateway';
+import { formatJSONResponse, formatError500Response } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 import AWS from 'aws-sdk';
 const dynamo = new AWS.DynamoDB.DocumentClient();
@@ -9,6 +9,8 @@ import crypto from 'crypto';
 
 
 const products: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+    //console.log for each incoming requests arguments
+    console.log(event);
 
     const body = event.body;
     const uuid = crypto.randomUUID();
@@ -32,7 +34,6 @@ const products: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event
     }
 
     try {
-
         await dynamo.put(productParams)
             .promise()
     
@@ -40,12 +41,10 @@ const products: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event
             .promise()
     
         return formatJSONResponse({
-            message:"Product successfully added to the DB"
+            message: "Product successfully added to the DB"
         });
     } catch(error) {
-        return formatJSONResponse({
-            error
-        });
+        return formatError500Response({ message: error.errorMessage });
     }
 
 };
