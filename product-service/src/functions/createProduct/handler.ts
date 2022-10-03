@@ -34,11 +34,16 @@ const products: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event
     }
 
     try {
-        await dynamo.put(productParams)
-            .promise()
-    
-        await dynamo.put(stockParams)
-            .promise()
+        await dynamo.transactWrite({
+            TransactItems: [
+              {
+                Put: productParams,
+              },
+              {
+                Put: stockParams,
+              }
+            ]
+          }).promise();
     
         return formatJSONResponse({
             message: "Product successfully added to the DB"
