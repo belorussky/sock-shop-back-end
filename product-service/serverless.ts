@@ -2,11 +2,13 @@ import type { AWS } from '@serverless/typescript';
 
 import getProductsList from '@functions/getProductsList';
 import getProductsById from '@functions/getProductsById';
+import createProduct from '@functions/createProduct';
+// import dynamoResources from  './dynamoResources';
 
 const serverlessConfiguration: AWS = {
   service: 'product-service',
   frameworkVersion: '3',
-  plugins: ['serverless-auto-swagger', 'serverless-webpack', 'serverless-esbuild'],
+  plugins: ['serverless-auto-swagger', 'serverless-esbuild'],
   provider: {
     name: 'aws',
     runtime: 'nodejs14.x',
@@ -19,14 +21,48 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
     },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: [
+          'dynamodb:DescribeTable',
+          'dynamodb:Query',
+          'dynamodb:Scan',
+          'dynamodb:GetItem',
+          'dynamodb:PutItem',
+          'dynamodb:UpdateItem',
+          'dynamodb:DeleteItem'
+        ],
+        Resource: "arn:aws:dynamodb:${self:provider.region}:${self:custom.enviroment.AWS_ACCOUNT_ID}:table/${self:custom.enviroment.PRODUCTS_TABLE}"
+      },
+      {
+        Effect: 'Allow',
+        Action: [
+          'dynamodb:DescribeTable',
+          'dynamodb:Query',
+          'dynamodb:Scan',
+          'dynamodb:GetItem',
+          'dynamodb:PutItem',
+          'dynamodb:UpdateItem',
+          'dynamodb:DeleteItem'
+        ],
+        Resource: "arn:aws:dynamodb:${self:provider.region}:${self:custom.enviroment.AWS_ACCOUNT_ID}:table/${self:custom.enviroment.STOCKS_TABLE}"
+      }
+  ]
   },
   // import the function via paths
-  functions: { getProductsList, getProductsById },
+  functions: { getProductsList, getProductsById, createProduct },
+  // resources: {
+  //   Resources: {
+  //     ...dynamoResources,
+  //   }
+  // },
   package: { individually: true },
   custom: {
-    webpack: {
-      webpackConfig: './webpack.config.js',
-      includeModules: true,
+    enviroment: {
+      PRODUCTS_TABLE: 'Products',
+      STOCKS_TABLE: 'Stocks',
+      AWS_ACCOUNT_ID: '597016584451'
     },
     esbuild: {
       bundle: true,
