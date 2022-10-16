@@ -88,7 +88,20 @@ const serverlessConfiguration: AWS = {
           Protocol: 'email',
           TopicArn: {
             Ref: 'SNSTopic'
-          }
+          },
+        },
+      },
+      PriceSubcsription: {
+        Type: 'AWS::SNS::Subscription',
+        Properties: {
+          Endpoint: '${env:EMAIL_PRICE}',
+          Protocol: 'email',
+          TopicArn: {
+            Ref: 'SNSTopic'
+          },
+          FilterPolicy: {
+            price: [{"numeric": ['>=', 50]}]
+          },
         },
       },
     },
