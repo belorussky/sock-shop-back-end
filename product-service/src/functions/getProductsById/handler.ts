@@ -14,7 +14,7 @@ const productsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 
   const getProductById = async (productId: string) => {
     const product =  await dynamo.query({
-        TableName: 'Products',
+        TableName: process.env.PRODUCTS_TABLE,
         KeyConditionExpression: 'id = :id',
         ExpressionAttributeValues: { ':id': productId },
     }).promise();
@@ -24,7 +24,7 @@ const productsById: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 
   const getProductStockById = async (productId: string) => {
     const stock =  await dynamo.query({
-        TableName: 'Stocks',
+        TableName: process.env.STOCKS_TABLE,
         KeyConditionExpression: 'product_id = :id',
         ExpressionAttributeValues: { ':id': productId },
     }).promise();
