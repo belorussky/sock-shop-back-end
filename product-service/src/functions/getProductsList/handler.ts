@@ -13,13 +13,13 @@ const products: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event
 
   const scanProducts = async () => {
     const scanProductResults = await dynamo.scan({
-        TableName: 'Products'
+        TableName: process.env.PRODUCTS_TABLE
     }).promise();
     return scanProductResults.Items;
   };
   const scanStocks = async () => {
     const scanStockResults = await dynamo.scan({
-        TableName: 'Stocks'
+        TableName: process.env.STOCKS_TABLE
     }).promise();
     return scanStockResults.Items;
   };

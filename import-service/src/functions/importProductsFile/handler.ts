@@ -8,7 +8,7 @@ import schema from './schema';
 const importProductsFile: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
     const s3 = new S3({ region: 'eu-west-1' });
     const fileName = event.queryStringParameters.name;
-    const BUCKET = 'node-in-aws-s3-import';
+    const BUCKET = process.env.IMPORT_BUCKET_NAME;
     const catalogPath = `uploaded/${fileName}`;
     const params = {
         Bucket: BUCKET,
