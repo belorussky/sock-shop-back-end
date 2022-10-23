@@ -20,7 +20,9 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       IMPORT_BUCKET_NAME: "${env:IMPORT_BUCKET_NAME}",
-      SQS_URL: "${env:SQS_URL}"
+      SQS_URL: "${env:SQS_URL}",
+      AWS_ACCOUNT_ID: "${env:AWS_ACCOUNT_ID}",
+      AUTHORIZER: "${env:AUTHORIZER}"
     },
     iamRoleStatements: [
       {

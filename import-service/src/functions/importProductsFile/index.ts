@@ -15,6 +15,13 @@ export default {
             }
           }
         },
+        authorizer: {
+          name: "basicAuthorizer",
+          arn: "arn:aws:lambda:eu-west-1:${env:AWS_ACCOUNT_ID}:function:${env:AUTHORIZER}",
+          resultTtlInSeconds: 0,
+          identitySource: "method.request.header.Authorization",
+          type: "token"
+        },
       },
     },
   ],

@@ -22,7 +22,7 @@ const importProductsFile: ValidatedEventAPIGatewayProxyEvent<typeof schema> = as
         const url = await s3.getSignedUrl('putObject', params);
         
         return formatJSONResponseSignedUrl({
-            url
+            message: "url"
         });
 
     } catch (error) {
