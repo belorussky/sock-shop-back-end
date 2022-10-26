@@ -20,7 +20,9 @@ const serverlessConfiguration: AWS = {
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
       NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
       IMPORT_BUCKET_NAME: "${env:IMPORT_BUCKET_NAME}",
-      SQS_URL: "${env:SQS_URL}"
+      SQS_URL: "${env:SQS_URL}",
+      AWS_ACCOUNT_ID: "${env:AWS_ACCOUNT_ID}",
+      AUTHORIZER: "${env:AUTHORIZER}"
     },
     iamRoleStatements: [
       {
@@ -40,6 +42,27 @@ const serverlessConfiguration: AWS = {
       }
     ],
   },
+
+  resources: {
+    Resources: {
+      GatewayResponseDefault4XX: {
+        Type: 'AWS::ApiGateway::GatewayResponse',
+        Properties: {
+          ResponseParameters: {
+            'gatewayresponse.header.Access-Control-Allow-Origin': "'*'",
+            'gatewayresponse.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+            'gatewayresponse.header.Access-Control-Allow-Methods': "'GET,OPTIONS'"
+          },
+          ResponseType: 'DEFAULT_4XX',
+          RestApiId:
+            { 
+              Ref: 'ApiGatewayRestApi' 
+            }
+        }
+      }
+    },
+  },
+
   // import the function via paths
   functions: { importProductsFile, importFileParser },
   package: { individually: true },
