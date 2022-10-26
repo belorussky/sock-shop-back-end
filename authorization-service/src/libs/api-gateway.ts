@@ -4,28 +4,6 @@ import type { FromSchema } from "json-schema-to-ts";
 type ValidatedAPIGatewayProxyEvent<S> = Omit<APIGatewayProxyEvent, 'body'> & { body: FromSchema<S> }
 export type ValidatedEventAPIGatewayProxyEvent<S> = Handler<ValidatedAPIGatewayProxyEvent<S>, APIGatewayProxyResult>
 
-export const unauthorizedJSONResponse = (response: Record<string, unknown>) => {
-  return {
-    statusCode: 401,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-    body: JSON.stringify(response)
-  }
-}
-
-export const forbiddenJSONResponse = (response: Record<string, unknown>) => {
-  return {
-    statusCode: 403,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true,
-    },
-    body: JSON.stringify(response)
-  }
-}
-
 export const formatJSONResponse = (response: Record<string, unknown>) => {
   return {
     statusCode: 200,

@@ -1,67 +1,52 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
-import { formatJSONResponse, unauthorizedJSONResponse, forbiddenJSONResponse } from '@libs/api-gateway';
+// import type { ValidatedEventAPIGatewayProxyEvent } from '@libs/api-gateway';
+// import { formatJSONResponse, unauthorizedJSONResponse, forbiddenJSONResponse } from '@libs/api-gateway';
 import { middyfy } from '@libs/lambda';
 
-import schema from './schema';
+// import schema from './schema';
 
-const basicAuthorizer: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+const basicAuthorizer = async (event) => {
     console.log('Event:', JSON.stringify(event));
     if (event['type'] != 'TOKEN') {
-        return unauthorizedJSONResponse({
-            message: '401 Unauthorized Error',
-            event,
-        });
-        // return forbiddenJSONResponse({
-        //     message: 'You don't have permission to access this resource',
-        //     ...error,
-        // });
+        return null;
     }
 
     try {
-        const authorizationToken = event.authorizationToken;
+        const authorizationToken: any = event.authorizationToken;
         
         const encodedCreds = authorizationToken.split(' ')[1];
         const buff = Buffer.from(encodedCreds, 'base64');
         const plainCreds = buff.toString('utf-8').split(':');
-        const username = plainCreds[0];
-        const password = plainCreds[1];
+        const userName: string = plainCreds[0];
+        const password: string = plainCreds[1];
 
-        console.log(`UserName: ${username} and Passwoed: ${password}`);
+        console.log(`UserName: ${userName} and Passwoed: ${password}`);
 
-        const storedUserPassword = process.env[username];
+        const storedUserPassword = process.env[userName];
         const effect = !storedUserPassword || storedUserPassword != password ? 'Deny' : 'Allow';
 
         if (effect == 'Deny') {
-            return forbiddenJSONResponse({
-                message: `Access is Denied for ${username}!`,
-            });
+            return generatePolicy('Deny', event.methodArn);
         }
 
-        const policy = generatePolicy(encodedCreds, event.methodArn, effect);
-
-        return formatJSONResponse({
-            policy,
-        });
-
+        return generatePolicy(effect, event.methodArn, userName);
 
     } catch(e) {
-        return unauthorizedJSONResponse({
-            message: `Unauthorized: ${e.message}`,
-        });
+        console.log('Internal server error appeared', e);
+        return generatePolicy('Deny', event.methodArn);
     }
 
 };
 
-const generatePolicy = (principalId, resource, effect = 'Allow') => {
+const generatePolicy = (action: 'Allow' | 'Deny', arn: string, userName?: string) => {
     return {
-        principalId: principalId,
+        principalId: userName ?? 'user',
         policyDocument: {
             Version: '2012-10-17',
             Statement: [
                 {
                     Action: 'execute-api:Invoke',
-                    Effect: effect,
-                    Resource: resource
+                    Effect: action,
+                    Resource: arn
                 }
             ]
         }
